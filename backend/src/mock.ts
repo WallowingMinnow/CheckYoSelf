@@ -63,7 +63,9 @@ const RULES: Rule[] = [
   },
 ];
 
-export function mockAnalyze(sources: TextSource[]): { summary: string; findings: Finding[]; droppedFindings: number } {
+/** `task` "history": the sources are saved posts (no draft); only the summary wording changes. */
+export function mockAnalyze(sources: TextSource[], task: "draft" | "history" = "draft"): { summary: string; findings: Finding[]; droppedFindings: number } {
+  const what = task === "history" ? "your saved posts" : "your draft";
   const findings: Finding[] = [];
 
   for (const rule of RULES) {
@@ -111,8 +113,8 @@ export function mockAnalyze(sources: TextSource[]): { summary: string; findings:
   return {
     summary:
       findings.length > 0
-        ? `${findings.length} keyword rule(s) matched your draft.`
-        : "No keyword rules matched your draft.",
+        ? `${findings.length} keyword rule(s) matched ${what}.`
+        : `No keyword rules matched ${what}.`,
     findings: findings.slice(0, 8),
     // Rules beyond the limit of 8 are not shown, so count them as dropped.
     droppedFindings: Math.max(0, findings.length - 8),

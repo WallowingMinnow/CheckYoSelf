@@ -12,6 +12,7 @@ function health(overrides: Partial<HealthResponse>): HealthResponse {
     mode: "databricks",
     contractVersion: CONTRACT_VERSION,
     databricks: { state: "configured_unverified", lastCallAt: null, lastError: null },
+    history: { store: "dev-memory" },
     ...overrides,
   };
 }
@@ -61,6 +62,7 @@ function response(droppedFindings: number): AnalyzeResponse {
     summary: "",
     findings: [],
     droppedFindings,
+    historyUsed: [],
   };
 }
 

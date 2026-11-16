@@ -1,0 +1,13 @@
+/* CheckYo'Self brand fonts, bundled in public/fonts/ (see fonts/README.md).
+   Kept out of popup.css on purpose: popup.css is also injected into the
+   Instagram panel's Shadow DOM, where @font-face doesn't work. */
+@font-face {
+  font-family: "Anton";
+  src: url("fonts/Anton-Regular.ttf") format("truetype");
+  font-display: block;
+}
+@font-face {
+  font-family: "Permanent Marker";
+  src: url("fonts/PermanentMarker-Regular.ttf") format("truetype");
+  font-display: block;
+}

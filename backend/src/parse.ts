@@ -67,7 +67,7 @@ export function parseModelOutput(raw: string, sources: TextSource[]): ParsedAnal
 }
 
 /** Models sometimes wrap JSON in ```json fences or add a sentence. Find the object. */
-function extractJsonObject(raw: string): Record<string, any> {
+export function extractJsonObject(raw: string): Record<string, any> {
   const cleaned = raw.replace(/```(?:json)?/gi, "").trim();
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");

@@ -11,11 +11,26 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, t
   return node;
 }
 
-export function sourceLabel(source: TextSource | undefined, sourceId: string): string {
+/**
+ * A source's name on screen. With several photos (a carousel), each photo's
+ * text is numbered ("Photo 2 text") so you can tell where a quote came from.
+ */
+export function sourceLabel(source: TextSource | undefined, sourceId: string, photoCount = 1): string {
   if (sourceId === "caption") return "Caption";
-  if (sourceId.startsWith("image_text")) return "Photo text";
+  if (sourceId === "profile") return "Your past posts (profile)";
+  if (sourceId.startsWith("image_text")) {
+    const n = sourceId.split(":")[1];
+    return photoCount > 1 && n ? `Photo ${n} text` : "Photo text";
+  }
   if (sourceId.startsWith("history")) return source?.date ? `Earlier post, ${source.date.slice(0, 10)}` : "Earlier post";
   return sourceId;
+}
+
+/** How many photo-text sources a draft has (several = a carousel). */
+function countPhotos(sources: Iterable<TextSource>): number {
+  let n = 0;
+  for (const s of sources) if (s.type === "image_text") n++;
+  return n;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -45,15 +60,54 @@ interface Range {
   severity: Level;
 }
 
+/**
+ * Lower-cases `text` and squeezes every run of whitespace (spaces, tabs, line
+ * breaks) into one space, remembering where each kept character came from.
+ */
+function normalizeWithMap(text: string): { normalized: string; originalIndex: number[] } {
+  let normalized = "";
+  const originalIndex: number[] = [];
+  let lastWasSpace = true; // true at the start = drop leading whitespace
+  for (let i = 0; i < text.length; i++) {
+    if (/\s/.test(text[i])) {
+      if (!lastWasSpace) {
+        normalized += " ";
+        originalIndex.push(i);
+      }
+      lastWasSpace = true;
+    } else {
+      normalized += text[i].toLowerCase();
+      originalIndex.push(i);
+      lastWasSpace = false;
+    }
+  }
+  return { normalized, originalIndex };
+}
+
+/**
+ * Where `quote` is in `text`, ignoring upper/lower case and differences in
+ * spaces and line breaks: the SAME rule the backend uses to mark a quote
+ * verified (quoteAppearsIn in backend/src/parse.ts). So a verified quote that
+ * runs across a line break (common in photo text) is highlighted too.
+ * Returns positions in the ORIGINAL text, or null if it isn't there.
+ */
+export function findQuoteRange(text: string, quote: string): { start: number; end: number } | null {
+  const q = normalizeWithMap(quote).normalized.trimEnd();
+  if (!q) return null;
+  const { normalized, originalIndex } = normalizeWithMap(text);
+  const at = normalized.indexOf(q);
+  if (at === -1) return null;
+  return { start: originalIndex[at], end: originalIndex[at + q.length - 1] + 1 };
+}
+
 function findRanges(source: TextSource, findings: Finding[]): Range[] {
-  const lower = source.text.toLowerCase();
   const ranges: Range[] = [];
   for (const finding of findings) {
     finding.evidence.forEach((ev, i) => {
       if (ev.sourceId !== source.id || !ev.verified) return;
-      const start = lower.indexOf(ev.quote.toLowerCase());
-      if (start === -1) return; // matched only after whitespace cleanup; skip the highlight
-      ranges.push({ start, end: start + ev.quote.length, keys: [`${finding.id}:${i}`], severity: finding.severity });
+      const where = findQuoteRange(source.text, ev.quote);
+      if (!where) return;
+      ranges.push({ ...where, keys: [`${finding.id}:${i}`], severity: finding.severity });
     });
   }
   // Merge overlapping highlights so we never nest <mark> tags.
@@ -140,7 +194,7 @@ function renderFinding(
     const item = el("li");
     const btn = el("button");
     btn.type = "button";
-    btn.append(el("span", "source-tag", sourceLabel(sourcesById.get(ev.sourceId), ev.sourceId)));
+    btn.append(el("span", "source-tag", sourceLabel(sourcesById.get(ev.sourceId), ev.sourceId, countPhotos(sourcesById.values()))));
     btn.append(el("span", "quote", `“${ev.quote}”`));
     if (!ev.verified) btn.append(el("span", "unverified", "not found in your text"));
     btn.addEventListener("click", () =>
@@ -215,7 +269,7 @@ export function renderResults(
   const showFinding = (id: string) => flash(els.root.querySelector(`#finding-${id}`));
   for (const source of sources) {
     if (!source.text.trim()) continue;
-    els.markedDraft.append(el("h3", undefined, sourceLabel(source, source.id)));
+    els.markedDraft.append(el("h3", undefined, sourceLabel(source, source.id, countPhotos(sources))));
     els.markedDraft.append(renderMarkedText(source, result.findings, showFinding));
   }
 

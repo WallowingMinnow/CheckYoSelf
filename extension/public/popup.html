@@ -2,35 +2,123 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Second Look</title>
+    <title>CheckYo'Self</title>
+    <link rel="stylesheet" href="fonts.css" />
     <link rel="stylesheet" href="popup.css" />
   </head>
+  <!--
+    "Street Poster" design. Every element id that popup.ts uses is kept; the
+    layout and look live in popup.css. Decorative pieces are aria-hidden.
+  -->
   <body>
-    <header class="top">
-      <h1>Second Look</h1>
-      <span id="backend-status" class="status-pill" data-state="checking">Checking backend…</span>
+    <header class="masthead">
+      <div class="masthead-top">
+        <span class="issue-tag" aria-hidden="true">Vol.01 · Privacy Dept.</span>
+        <span id="backend-status" class="status-pill" data-state="checking">Checking backend…</span>
+      </div>
+      <h1 class="wordmark" aria-label="CheckYo'Self">
+        <span class="wm-check" aria-hidden="true">CHECK</span><span class="wm-yo" aria-hidden="true">YO<span class="wm-apos">'</span>SELF</span>
+      </h1>
+      <p class="tagline">before you post yo'self.</p>
+      <div class="ticker" aria-hidden="true">
+        <span>Know what you're putting out there ✦ Your privacy. Your rules ✦ Keep your business your business ✦ </span>
+        <span>Know what you're putting out there ✦ Your privacy. Your rules ✦ Keep your business your business ✦ </span>
+      </div>
     </header>
 
     <main>
       <section class="draft" aria-labelledby="draft-heading">
-        <h2 id="draft-heading" class="visually-hidden">Your draft</h2>
+        <h2 id="draft-heading" class="section-title">Before you post…</h2>
 
-        <label for="caption">Caption</label>
-        <textarea id="caption" rows="5" placeholder="Write or paste a caption"></textarea>
+        <!-- 01: the photo. The file input covers the drop zone, so clicking it
+             or dropping an image on it both work without extra code. -->
+        <p class="step"><span class="step-num">01</span> The photo</p>
+        <div class="dropzone">
+          <input id="photo" type="file" accept="image/*" class="drop-input" aria-label="Select image" />
+          <svg class="drop-icon" viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M8 30v10h32V30" />
+            <path d="M24 32V8" />
+            <path d="M14 17l10-10 10 10" />
+            <path d="M40 8l3-3M43 12h3M36 5V2" class="drop-spark" />
+          </svg>
+          <span class="drop-title">Select image</span>
+          <span class="drop-sub">or drop it here · read on this computer, never uploaded</span>
+        </div>
 
-        <label for="image-text">Text in the photo</label>
-        <p class="hint">Type it by hand for now. Milestone 2 reads it from the photo automatically, on your computer.</p>
-        <textarea id="image-text" rows="2" placeholder="e.g. a sign, name tag or jersey in the photo"></textarea>
+        <div id="photo-preview-wrap" class="photo-preview" hidden>
+          <div class="preview-frame">
+            <img id="photo-preview" alt="The photo you picked. It stays on this computer." />
+            <div class="scan" aria-hidden="true">
+              <span class="scan-line"></span>
+              <span class="scan-label">Checking your digital footprint…</span>
+            </div>
+          </div>
+          <div class="preview-actions">
+            <label class="file-button" for="photo">Replace</label>
+            <button id="photo-cancel" type="button" class="secondary small" hidden>Stop reading</button>
+            <button id="photo-remove" type="button" class="secondary small" hidden>Remove photo</button>
+          </div>
+        </div>
+        <progress id="photo-progress" class="photo-progress" max="1" value="0" hidden></progress>
+        <p id="photo-status" class="hint" role="status" aria-live="polite"></p>
+        <div id="photo-notices" class="photo-notices"></div>
+
+        <!-- 02: text in the photo (filled by OCR, or typed) -->
+        <label class="step" for="image-text"><span class="step-num">02</span> Text in the photo</label>
+        <p class="hint">Read from your photo on this computer, or type it yourself. Check it before you analyze.</p>
+        <textarea id="image-text" rows="3" placeholder="e.g. a sign, name tag or jersey in the photo"></textarea>
+
+        <!-- 03: the caption -->
+        <label class="step" for="caption"><span class="step-num">03</span> Caption</label>
+        <textarea id="caption" rows="4" placeholder="Write or paste a caption"></textarea>
+
+        <!-- Optional: check together with earlier posts the user saved (closed by default). -->
+        <div class="compare">
+          <button id="compare-toggle" type="button" class="link-button" aria-expanded="false" aria-controls="compare-panel">
+            + Compare with my past posts <span class="optional">(optional)</span>
+          </button>
+          <div id="compare-panel" class="compare-panel" hidden>
+            <p class="hint">
+              Check this post together with earlier posts you saved, to spot what they reveal <em>together</em>
+              (for example a school in one post and a pickup time in another). Only the posts you tick are used.
+            </p>
+            <label class="compare-profile" hidden id="compare-profile-row">
+              <input id="compare-profile" type="checkbox" checked />
+              <span id="compare-profile-label">Use my profile (facts from all my saved posts)</span>
+            </label>
+            <p id="compare-status" class="hint" role="status" aria-live="polite"></p>
+            <ul id="compare-list" class="compare-list"></ul>
+            <p class="compare-links">
+              <button id="compare-refresh" type="button" class="secondary small">Update suggestions</button>
+              <a href="history.html" target="_blank">Manage or import past posts →</a>
+            </p>
+          </div>
+        </div>
 
         <div class="actions">
-          <button id="load-sample" type="button" class="secondary">Use sample post</button>
-          <button id="analyze" type="button" class="primary">Check this post</button>
+          <div class="actions-secondary">
+            <button id="load-sample" type="button" class="secondary">Use sample post</button>
+            <button id="load-instagram" type="button" class="secondary">Use Instagram draft</button>
+          </div>
+          <button id="analyze" type="button" class="primary big">Check this post</button>
         </div>
         <p id="message" class="message" role="status" aria-live="polite"></p>
       </section>
 
       <section id="results" class="results" hidden aria-labelledby="results-heading">
-        <h2 id="results-heading">What this post could reveal</h2>
+        <h2 id="results-heading" class="results-title">What this post could reveal</h2>
+
+        <!-- The verdict: score + stamp (display only, see src/verdict.ts) -->
+        <div id="verdict" class="verdict" hidden>
+          <div class="verdict-score">
+            <span class="verdict-label">Risk score</span>
+            <span id="verdict-score" class="verdict-number">0</span>
+            <span class="verdict-max">/ 100</span>
+          </div>
+          <span id="verdict-stamp" class="verdict-stamp">LOW</span>
+          <p id="verdict-headline" class="verdict-headline"></p>
+          <p id="verdict-note" class="verdict-note"></p>
+        </div>
 
         <p id="mock-banner" class="banner banner-mock" hidden>
           Practice results. These come from simple keyword rules, not AI. See the README to connect Databricks.
@@ -45,9 +133,21 @@
 
         <div id="marked-draft" class="marked-draft"></div>
         <ol id="findings" class="findings"></ol>
+
+        <section id="advice" class="advice" hidden aria-labelledby="advice-heading">
+          <h3 id="advice-heading" class="advice-title">Before you drop that post…</h3>
+          <ol id="advice-list" class="advice-list"></ol>
+        </section>
+
         <p id="meta" class="meta"></p>
       </section>
+      <p class="history-link"><a href="history.html" target="_blank">Your past posts (history) →</a></p>
     </main>
+
+    <footer class="colophon" aria-hidden="true">
+      <span>Keep your business your business.</span>
+      <span>Photos never leave this computer</span>
+    </footer>
 
     <script type="module" src="popup.js"></script>
   </body>

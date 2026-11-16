@@ -1,0 +1,15 @@
+<!doctype html>
+<!--
+  Hidden extension page that reads text from the Instagram photo, locally.
+  Created by the service worker (chrome.offscreen) only when a photo needs
+  reading. See src/offscreen.ts and src/ocr-relay.ts.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CheckYo'Self photo reader</title>
+  </head>
+  <body>
+    <script type="module" src="offscreen.js"></script>
+  </body>
+</html>

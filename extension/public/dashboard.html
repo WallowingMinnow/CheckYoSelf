@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CheckYo'Self dashboard</title>
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <!-- Most content is drawn by src/dashboard/view.ts (textContent only, never innerHTML). -->
+  <body>
+    <header class="app-header">
+      <div class="header-inner">
+        <a class="brand" href="#overview">
+          <span id="brand-mark" class="brand-mark"></span>
+          <span class="brand-name">CheckYo'Self</span>
+        </a>
+
+        <nav class="tabs" aria-label="Dashboard sections">
+          <a class="tab" href="#overview" data-view="overview">Overview</a>
+          <a class="tab" href="#cross-post" data-view="cross-post">Cross-post</a>
+          <a class="tab" href="#posts" data-view="posts">Posts</a>
+          <a class="tab" href="#actions" data-view="actions">Actions</a>
+          <a class="tab" href="history.html">History</a>
+        </nav>
+
+        <div class="header-right">
+          <span id="backend-status" class="status" data-state="checking" role="status">
+            <span class="status-dot"></span><span id="backend-status-label">Checking…</span>
+          </span>
+          <div class="profile" title="Your checks stay in this tab until you close it.">
+            <span id="profile-avatar" class="avatar"></span>
+            <span class="profile-text">
+              <span class="profile-name">You</span>
+              <span class="profile-sub">Local profile</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="toolbar">
+        <div class="dataset" role="group" aria-label="Which report to show">
+          <button id="show-sample" type="button" class="seg" aria-pressed="true">Sample report</button>
+          <button id="show-live" type="button" class="seg" aria-pressed="false">My checks <span id="live-count" class="seg-count">0</span></button>
+        </div>
+        <p id="dataset-note" class="dataset-note"></p>
+        <div class="toolbar-actions">
+          <button id="rescan" type="button" class="btn btn-ghost"></button>
+          <button id="open-analyze" type="button" class="btn btn-primary"></button>
+        </div>
+      </div>
+      <p id="toast" class="toast" role="status" aria-live="polite" hidden></p>
+
+      <main>
+        <section id="view-overview" class="view" data-view="overview" aria-label="Overview"></section>
+        <section id="view-cross-post" class="view" data-view="cross-post" aria-label="Cross-post analysis" hidden></section>
+        <section id="view-posts" class="view" data-view="posts" aria-label="Individual posts" hidden></section>
+        <section id="view-actions" class="view" data-view="actions" aria-label="Recommended actions" hidden></section>
+      </main>
+
+      <footer class="foot">
+        Scores are estimates computed in the extension from the findings, not a measurement.
+        Offline checks never leave this page. Backend checks send text only; photos stay on your computer.
+      </footer>
+    </div>
+
+    <!-- Evidence behind one warning -->
+    <dialog id="evidence-dialog" class="dialog" aria-labelledby="evidence-title">
+      <div class="dialog-head">
+        <h2 id="evidence-title">Evidence</h2>
+        <button type="button" class="icon-btn" data-close aria-label="Close"></button>
+      </div>
+      <div id="evidence-body" class="dialog-body"></div>
+    </dialog>
+
+    <!-- Check another post -->
+    <dialog id="analyze-dialog" class="dialog" aria-labelledby="analyze-title">
+      <form id="analyze-form" method="dialog">
+        <div class="dialog-head">
+          <h2 id="analyze-title">Analyze a post</h2>
+          <button type="button" class="icon-btn" data-close aria-label="Close"></button>
+        </div>
+        <div class="dialog-body">
+          <fieldset class="engine-choice">
+            <legend>How to analyze</legend>
+            <label class="engine-option">
+              <input type="radio" name="engine" value="offline" checked />
+              <span class="engine-text">
+                <span class="engine-name">Offline · keyword rules</span>
+                <span class="engine-sub">No AI. Runs in this page; nothing is sent anywhere.</span>
+              </span>
+            </label>
+            <label class="engine-option">
+              <input type="radio" name="engine" value="backend" />
+              <span class="engine-text">
+                <span class="engine-name">Backend</span>
+                <span id="engine-backend-sub" class="engine-sub">AI analysis through your local backend.</span>
+              </span>
+            </label>
+          </fieldset>
+
+          <div class="example-row">
+            <span class="optional">Need text to try?</span>
+            <button id="fill-example" type="button" class="link-btn">Fill a fictional example</button>
+          </div>
+
+          <label for="analyze-name">Name <span class="optional">(optional)</span></label>
+          <input id="analyze-name" type="text" maxlength="40" placeholder="e.g. Saturday hike" />
+
+          <label for="analyze-caption">Caption</label>
+          <textarea id="analyze-caption" rows="5" placeholder="Write or paste the caption"></textarea>
+
+          <label for="analyze-image-text">Text in the photo <span class="optional">(optional)</span></label>
+          <textarea id="analyze-image-text" rows="2" placeholder="Signs, name tags, jerseys… type what the photo shows"></textarea>
+
+          <p id="analyze-fine-print" class="fine-print"></p>
+          <p id="analyze-message" class="form-message" role="status" aria-live="polite"></p>
+        </div>
+        <div class="dialog-foot">
+          <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+          <button id="analyze-submit" type="submit" class="btn btn-primary">Analyze</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="dashboard.js"></script>
+  </body>
+</html>

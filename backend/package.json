@@ -9,7 +9,8 @@
     "start": "tsx src/server.ts",
     "typecheck": "tsc --noEmit",
     "check:databricks": "tsx scripts/ping-databricks.ts",
-    "test": "tsx --test \"test/*.test.ts\""
+    "test": "tsx --test \"test/*.test.ts\"",
+    "check:history": "tsx scripts/check-history.ts"
   },
   "engines": {
     "node": ">=20"

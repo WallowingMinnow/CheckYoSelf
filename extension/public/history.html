@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CheckYo'Self history</title>
+    <link rel="stylesheet" href="fonts.css" />
+    <link rel="stylesheet" href="popup.css" />
+    <link rel="stylesheet" href="history.css" />
+  </head>
+  <body class="history-page">
+    <header class="masthead">
+      <div class="masthead-top">
+        <span class="issue-tag" aria-hidden="true">Vol.01 · Your history</span>
+        <span id="backend-status" class="status-pill" data-state="checking">Checking backend…</span>
+      </div>
+      <h1 class="wordmark" aria-label="CheckYo'Self">
+        <span class="wm-check" aria-hidden="true">CHECK</span><span class="wm-yo" aria-hidden="true">YO<span class="wm-apos">'</span>SELF</span>
+      </h1>
+      <p class="tagline">your past posts, connected.</p>
+    </header>
+
+    <main>
+      <!-- 1. What's saved -->
+      <section class="hist-section" aria-labelledby="saved-heading">
+        <h2 id="saved-heading" class="section-title">Your saved posts</h2>
+        <p class="hint">
+          Only posts you approved are saved, as text only (caption and photo text). They let CheckYo'Self spot what your
+          posts reveal <em>together</em>. Delete any of them at any time.
+        </p>
+        <p id="saved-summary" class="hist-summary">Loading…</p>
+        <ol id="saved-list" class="hist-list"></ol>
+        <div class="hist-actions">
+          <button id="refresh" type="button" class="secondary small">Refresh</button>
+          <button id="delete-all" type="button" class="secondary small danger" disabled>Delete all my history</button>
+        </div>
+        <p id="saved-message" class="message" role="status" aria-live="polite"></p>
+      </section>
+
+      <!-- 1b. What the saved posts reveal together (src/history-assess.ts) -->
+      <section class="hist-section" aria-labelledby="assess-heading">
+        <h2 id="assess-heading" class="section-title">What your posts reveal together</h2>
+        <p class="hint">
+          One post rarely gives much away. Several together can: a first name in one, a school in another, a pickup time in
+          a third. This reads your saved posts <em>together</em> and gives a risk score for what a stranger could piece together.
+        </p>
+        <p id="assess-scope" class="hint consent-note"></p>
+        <div class="hist-actions">
+          <button id="assess" type="button" class="primary small" disabled>Assess my saved posts</button>
+        </div>
+        <p id="assess-message" class="message" role="status" aria-live="polite"></p>
+        <div id="assess-result" class="assess-result" hidden>
+          <div id="assess-verdict" class="verdict">
+            <div class="verdict-score">
+              <span class="verdict-label">Risk score</span>
+              <span id="assess-score" class="verdict-number">0</span>
+              <span class="verdict-max">/ 100</span>
+            </div>
+            <span id="assess-stamp" class="verdict-stamp">LOW</span>
+            <p id="assess-headline" class="verdict-headline"></p>
+            <p id="assess-note" class="verdict-note"></p>
+          </div>
+          <p id="assess-summary" class="assess-summary"></p>
+          <ol id="assess-list" class="hist-list"></ol>
+        </div>
+      </section>
+
+      <!-- 2. The profile: facts from all saved posts -->
+      <section class="hist-section" aria-labelledby="profile-heading">
+        <h2 id="profile-heading" class="section-title">Your profile</h2>
+        <p class="hint">
+          Optional. CheckYo'Self's AI reads your saved posts once and notes the personal facts they reveal (names or parts
+          of names, schools, teams, streets, routines…), each with the exact words it came from. Checks can then connect a
+          new post to ALL your saved posts, even ones that share no words with it. Facts are deleted with their posts.
+        </p>
+        <p id="profile-summary" class="hist-summary">Loading…</p>
+        <div class="hist-actions">
+          <button id="profile-build" type="button" class="primary small">Build / update my profile</button>
+        </div>
+        <progress id="profile-progress" class="photo-progress" max="1" value="0" hidden></progress>
+        <p id="profile-message" class="message" role="status" aria-live="polite"></p>
+        <ul id="profile-list" class="hist-list"></ul>
+      </section>
+
+      <!-- 3. Import from Instagram's export -->
+      <section class="hist-section" aria-labelledby="import-heading">
+        <h2 id="import-heading" class="section-title">Import past posts</h2>
+        <ol class="hist-steps">
+          <li>
+            In Instagram: <strong>Settings → Accounts Center → Your information and permissions → Download your information</strong>.
+            Choose <strong>Some of your information → Content (Posts)</strong>, format <strong>JSON</strong>, media quality
+            <strong>Low</strong>. Instagram emails you when it's ready.
+          </li>
+          <li>Download it and <strong>unzip</strong> it.</li>
+          <li>Pick the unzipped folder below. It's read <strong>on this computer</strong>; nothing is sent yet.</li>
+        </ol>
+
+        <label class="file-button" for="export-folder">Choose the export folder</label>
+        <input id="export-folder" type="file" class="visually-hidden" webkitdirectory multiple />
+        <p id="import-status" class="hint" role="status" aria-live="polite"></p>
+
+        <div id="picker" hidden>
+          <div class="hist-actions">
+            <button id="select-all" type="button" class="secondary small">Select all</button>
+            <button id="select-none" type="button" class="secondary small">Select none</button>
+            <label class="hist-check">
+              <input id="read-photos" type="checkbox" checked />
+              Also read the text in the photos (on this computer, about 1–3 s per photo)
+            </label>
+          </div>
+          <ol id="import-list" class="hist-list"></ol>
+          <p class="hint consent-note">
+            "Save selected posts" sends ONLY the captions and photo text of the posts you ticked to your CheckYo'Self
+            backend, which stores them for your later checks. Photos never leave this computer.
+          </p>
+          <button id="import" type="button" class="primary" disabled>Save selected posts</button>
+          <progress id="import-progress" class="photo-progress" max="1" value="0" hidden></progress>
+          <p id="import-message" class="message" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="history.js"></script>
+  </body>
+</html>
